@@ -107,4 +107,4 @@ if __name__ == "__main__":
     else:
         raise ValueError("Unknown value for pp: %s. Expected: 0 or 1" % str(pp))
 
-    run_hd_ctbet(input_files, output_files, mode, config_file, device, pp, tta, save_mask, overwrite_existing)
+    run_hd_ctbet(input_files, output_files, mode, device, pp, tta, save_mask, overwrite_existing)

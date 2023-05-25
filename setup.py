@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='HD_CTBET',
-      version='1.0',
+      version='1.1',
       description=('Tool for brain extraction from CT images. '
                    'Fork of HD-BET from Isensee et al.'),
       url='https://github.com/CAAI/HD-CTBET',

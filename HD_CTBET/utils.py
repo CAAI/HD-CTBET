@@ -57,15 +57,13 @@ def softmax_helper(x):
     e_x = torch.exp(x - x_max)
     return e_x / e_x.sum(1, keepdim=True).repeat(*rpt)
 
-def postprocess_prediction(seg, ct_name):
+def postprocess_prediction(seg, ct):
 
     # Load BET
     labels = measure.label(seg, background=0)
 
     # Load CT
-    CT_itk = sitk.ReadImage(ct_name)
-    CT_npy = sitk.GetArrayFromImage(CT_itk)
-    labelsCT = measure.label(CT_npy>0, background=0)
+    labelsCT = measure.label(ct>0, background=0)
 
     # Keep only largest component that overlaps with CT
     max_val = 0
