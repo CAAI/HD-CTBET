@@ -7,6 +7,8 @@ import os
 from HD_CTBET.paths import folder_with_parameter_files
 import shutil
 from multiprocessing import Process, Queue
+from skimage import measure
+import SimpleITK as sitk
 
 
 def get_params_fname(fold):
@@ -33,11 +35,19 @@ def maybe_download_parameters(fold=0, force_overwrite=False):
     if force_overwrite and os.path.isfile(out_filename+'.pkl'):
         os.remove(out_filename+'.pkl')
 
-    base = '/homes/claes/projects/nnUNet/nnUNet_trained_models/nnUNet/3d_fullres/Task203_CTBET/nnUNetTrainerV2__nnUNetPlansv2.1'
+    url='https://zenodo.org/record/7970359/files/CT_%d.model?download=1' % fold
     if not os.path.isfile(out_filename):
-        shutil.copy(f'{base}/fold_{fold}/model_best.model', out_filename)
+        print("Downloading", url, "...")
+        data = urlopen(url).read()
+        with open(out_filename, 'wb') as f:
+            f.write(data)
+
+    url_pkl='https://zenodo.org/record/7970359/files/CT_%d.model.pkl?download=1' % fold
     if not os.path.isfile(out_filename+'.pkl'):
-        shutil.copy(f'{base}/fold_{fold}/model_best.model.pkl', out_filename+'.pkl')
+        print("Downloading", url_pkl, "...")
+        data = urlopen(url_pkl).read()
+        with open(out_filename+'.pkl', 'wb') as f:
+            f.write(data)
 
 
 def softmax_helper(x):
@@ -47,16 +57,24 @@ def softmax_helper(x):
     e_x = torch.exp(x - x_max)
     return e_x / e_x.sum(1, keepdim=True).repeat(*rpt)
 
+def postprocess_prediction(seg, ct_name):
 
-def postprocess_prediction(seg):
-    # basically look for connected components and choose the largest one, delete everything else
-    print("running postprocessing... ")
-    mask = seg != 0
-    lbls = label(mask, 8)
-    lbls_sizes = [np.sum(lbls == i) for i in np.unique(lbls)]
-    largest_region = np.argmax(lbls_sizes[1:]) + 1
-    seg[lbls != largest_region] = 0
-    return seg
+    # Load BET
+    labels = measure.label(seg, background=0)
+
+    # Load CT
+    CT_itk = sitk.ReadImage(ct_name)
+    CT_npy = sitk.GetArrayFromImage(CT_itk)
+    labelsCT = measure.label(CT_npy>0, background=0)
+
+    # Keep only largest component that overlaps with CT
+    max_val = 0
+    max_i = None
+    for i in np.unique(labels):
+        if i > 0 and (_i_inCT := np.logical_and(labels==i, labelsCT)).sum() > max_val:
+            max_val = _i_inCT.sum()
+            max_i = i
+    return (labels==max_i).astype('int8')
 
 
 def to_one_hot(seg, all_seg_labels=None):

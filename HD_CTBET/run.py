@@ -46,17 +46,15 @@ def apply_bet(img, bet, out_fname):
     sitk.WriteImage(out, out_fname)
 
 
-def run_hd_ctbet(mri_fnames, output_fnames, mode="accurate",
-                 config_file=os.path.join(HD_CTBET.__path__[0], "config.py"),
+def run_hd_ctbet(ct_fnames, output_fnames, mode="accurate",
                  device=0, postprocess=False, do_tta=True, keep_mask=True,
                  overwrite=True, step_size=0.5, all_in_gpu=False,
                  mixed_precision=True):
     """
 
-    :param mri_fnames: str or list/tuple of str
+    :param ct_fnames: str or list/tuple of str
     :param output_fnames: str or list/tuple of str. If list: must have the same length as output_fnames
     :param mode: fast or accurate
-    :param config_file: config.py
     :param device: either int (for device id) or 'cpu'
     :param postprocess: whether to do postprocessing or not. Postprocessing here consists of simply discarding all
     but the largest predicted connected component. Default False
@@ -83,13 +81,13 @@ def run_hd_ctbet(mri_fnames, output_fnames, mode="accurate",
 
     assert all([os.path.isfile(i) for i in list_of_param_files]), "Could not find parameter files"
 
-    if not isinstance(mri_fnames, (list, tuple)):
-        mri_fnames = [mri_fnames]
+    if not isinstance(ct_fnames, (list, tuple)):
+        ct_fnames = [ct_fnames]
 
     if not isinstance(output_fnames, (list, tuple)):
         output_fnames = [output_fnames]
 
-    assert len(mri_fnames) == len(output_fnames), "mri_fnames and output_fnames must have the same length"
+    assert len(ct_fnames) == len(output_fnames), "ct_fnames and output_fnames must have the same length"
 
     print("emptying cuda cache")
     torch.cuda.empty_cache()
@@ -98,9 +96,9 @@ def run_hd_ctbet(mri_fnames, output_fnames, mode="accurate",
     trainer, params = load_model_and_checkpoint_files(list_of_param_files)
 
     print("starting preprocessing generator")
-    preprocessing = preprocess_multithreaded(trainer, [mri_fnames], [output_fnames], 6)
+    preprocessing = preprocess_multithreaded(trainer, [ct_fnames], [output_fnames], 6)
 
-    for preprocessed, in_fname, out_fname in zip(preprocessing, mri_fnames, output_fnames):
+    for preprocessed, in_fname, out_fname in zip(preprocessing, ct_fnames, output_fnames):
         mask_fname = out_fname[:-7] + "_mask.nii.gz"
         if overwrite or (not (os.path.isfile(mask_fname) and keep_mask) or not os.path.isfile(out_fname)):
             print("File:", in_fname)
@@ -150,7 +148,7 @@ def run_hd_ctbet(mri_fnames, output_fnames, mode="accurate",
             seg = np.argmax(softmax, 0)
 
             if postprocess:
-                seg = postprocess_prediction(seg)
+                seg = postprocess_prediction(seg, d)
 
             print("exporting segmentation...")
             save_segmentation_nifti(seg, data_dict, mask_fname)

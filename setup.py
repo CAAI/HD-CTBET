@@ -15,7 +15,7 @@ setup(name='HD_CTBET',
           'torch>=0.4.1',
           'scikit-image',
           'SimpleITK',
-          'nnunet==1.6.6'
+          'nnunet>=1.6.6'
       ],
       scripts=['HD_CTBET/hd-ctbet'],
       packages=find_packages(include=['HD_CTBET']),

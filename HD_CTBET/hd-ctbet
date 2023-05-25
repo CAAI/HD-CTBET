@@ -55,9 +55,6 @@ if __name__ == "__main__":
     save_mask = args.save_mask
     overwrite_existing = args.overwrite_existing
 
-    params_file = os.path.join(HD_CTBET.__path__[0], "model_final.py")
-    config_file = os.path.join(HD_CTBET.__path__[0], "config.py")
-
     assert os.path.abspath(input_file_or_dir) != os.path.abspath(output_file_or_dir), "output must be different from input"
 
     if device == 'cpu':
