@@ -35,14 +35,14 @@ def maybe_download_parameters(fold=0, force_overwrite=False):
     if force_overwrite and os.path.isfile(out_filename+'.pkl'):
         os.remove(out_filename+'.pkl')
 
-    url='https://zenodo.org/record/7970359/files/CT_%d.model?download=1' % fold
+    url='https://zenodo.org/record/7973721/files/CT_%d.model?download=1' % fold
     if not os.path.isfile(out_filename):
         print("Downloading", url, "...")
         data = urlopen(url).read()
         with open(out_filename, 'wb') as f:
             f.write(data)
 
-    url_pkl='https://zenodo.org/record/7970359/files/CT_%d.model.pkl?download=1' % fold
+    url_pkl='https://zenodo.org/record/7973721/files/CT_%d.model.pkl?download=1' % fold
     if not os.path.isfile(out_filename+'.pkl'):
         print("Downloading", url_pkl, "...")
         data = urlopen(url_pkl).read()
