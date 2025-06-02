@@ -63,3 +63,5 @@ For more information, please refer to the help functionality:
 ```bash
 hd-ctbet --help
 ```
+
+You need the `nnUNetTrainerV2Wandb` trainer
