@@ -18,7 +18,7 @@ networks. Hum Brain Mapp. 2019; 1–13. https://doi.org/10.1002/hbm.24750
     cd HD-CTBET
     pip install -e .
     ```
-3) Per default, model parameters will be downloaded from [zenodo](https://zenodo.org/record/7970359) to ~/hd-bet_params. If you wish to use a different folder, open
+3) Per default, model parameters will be downloaded from [zenodo](https://zenodo.org/records/7973721) to ~/hd-bet_params. If you wish to use a different folder, open
 HD_CTBET/paths.py in a text editor and modify ```folder_with_parameter_files```
 
 
